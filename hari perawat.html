@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <!-- Meta tag penting untuk HP: mencegah zoom out/in yang tidak disengaja -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Selamat Hari Perawat</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            /* Mencegah highlight biru saat elemen disentuh di HP */
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        body {
+            /* 100dvh memastikan tinggi pas dengan layar HP masa kini */
+            min-height: 100dvh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa 0%, #4dd0e1 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Container khusus HP */
+        .card-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            padding: 0 25px; /* Memberi jarak di kiri-kanan layar HP */
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 380px; /* Batas maksimal lebar di HP */
+            border-radius: 24px;
+            padding: 35px 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            text-align: center;
+            transform: scale(0.8) translateY(20px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
+        }
+
+        .card.active {
+            display: block;
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Ikon Medis */
+        .med-icon {
+            width: 55px;
+            height: 55px;
+            background: #ff4757;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+
+        .med-icon::before, .med-icon::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 2px;
+        }
+
+        .med-icon::before { width: 8px; height: 26px; }
+        .med-icon::after { width: 26px; height: 8px; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.6); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255, 71, 87, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+
+        /* Tipografi untuk HP */
+        h1 {
+            color: #2f3542;
+            font-size: 22px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #57606f;
+            font-size: 14px; /* Ukuran pas untuk dibaca di HP */
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: #f1f2f6;
+            color: #2f3542;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* Animasi EKG */
+        .ecg {
+            width: 100%;
+            height: 50px;
+            fill: none;
+            stroke: #1e90ff;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            margin-bottom: 20px;
+        }
+
+        .ecg polyline {
+            stroke-dasharray: 600;
+            stroke-dashoffset: 600;
+        }
+
+        .card.active .ecg polyline {
+            animation: dash 2.5s linear infinite;
+        }
+
+        @keyframes dash {
+            0% { stroke-dashoffset: 600; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -600; }
+        }
+
+        /* Tombol Utama (Ukuran Jempol HP) */
+        .btn-open {
+            background: #1e90ff;
+            color: white;
+            border: none;
+            width: 80%; /* Lebar dominan di HP */
+            max-width: 300px;
+            padding: 18px 20px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(30, 144, 255, 0.4);
+            transition: all 0.2s ease;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+        }
+
+        .btn-open:active {
+            transform: translate(-50%, -50%) scale(0.95);
+            background: #3742fa;
+        }
+
+        /* Partikel Jatuh */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0;
+            animation: floatUp 3.5s ease-in forwards;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.2) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tombol Pembuka -->
+    <button class="btn-open" id="btnOpen">Buka Ucapan 🩺</button>
+
+    <!-- Konten Kartu -->
+    <div class="card-container">
+        <div class="card" id="greetingCard">
+            <div class="med-icon"></div>
+            
+            <svg class="ecg" viewBox="0 0 500 100">
+                <polyline points="0,50 150,50 180,20 220,90 260,10 300,50 340,50 500,50" />
+            </svg>
+
+            <h1>Selamat Hari Perawat!</h1>
+            <p>Terima kasih atas tangan yang selalu sedia merawat, hati yang tak pernah lelah peduli, dan dedikasi yang menyelamatkan banyak nyawa.</p>
+            <p>Kamu adalah pahlawan tanpa jubah, berbekal stetoskop dan kasih sayang.</p>
+            
+            <div class="date-badge">12 Mei • International Nurses Day</div>
+        </div>
+    </div>
+
+    <script>
+        const btnOpen = document.getElementById('btnOpen');
+        const greetingCard = document.getElementById('greetingCard');
+        
+        // Emoji bertema medis
+        const particles = ['❤️', '🩺', '💊', '🩹', '💉', '✨'];
+
+        btnOpen.addEventListener('click', () => {
+            // Sembunyikan tombol dengan halus, tampilkan kartu
+            btnOpen.style.display = 'none';
+            greetingCard.classList.add('active');
+
+            // Hasilkan partikel emoji melayang
+            let particleCount = 0;
+            const maxParticles = window.innerWidth < 400 ? 30 : 40; // Sesuaikan jumlah partikel dengan layar HP
+
+            const interval = setInterval(() => {
+                createParticle();
+                particleCount++;
+                if(particleCount > maxParticles) clearInterval(interval);
+            }, 100);
+        });
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            particle.innerText = particles[Math.floor(Math.random() * particles.length)];
+            
+            // Sebar dari kiri ke kanan layar HP
+            particle.style.left = Math.random() * 90 + 5 + 'vw'; 
+            particle.style.bottom = '-30px';
+            
+            // Ukuran font emoji disesuaikan untuk HP
+            particle.style.fontSize = (Math.random() * 15 + 15) + 'px'; 
+            
+            // Durasi animasi bervariasi
+            particle.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+
+            document.body.appendChild(particle);
+
+            // Bersihkan elemen setelah selesai
+            setTimeout(() => {
+                particle.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
